@@ -7,19 +7,27 @@ addons:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - g++-5
+      - g++-6
+      - gcc-6
+  homebrew:
+    taps:
+      - facebook/fb
+    packages:
+      - buck
+
+os:
+  - linux
+  - osx
+
+env:
+  - BUCKAROO_VERSION=buckaroo-redux-alpha-8
+
+osx_image: xcode9.3
 
 before_install:
-  - cd /usr/bin/ && sudo rm g++ && sudo ln -s g++-5 g++ && cd -
-  - g++ --version
-  - sudo apt-get install default-jdk
-  - wget -O buck.deb https://github.com/facebook/buck/releases/download/v2017.09.04.02/buck-2017.09.04.02_all.deb
-  - sudo dpkg -i buck.deb
-  - wget -O buckaroo.deb https://github.com/LoopPerfect/buckaroo/releases/download/v1.3.1/buckaroo_1.3.1_amd64.deb
-  - sudo dpkg -i buckaroo.deb
+  - ./travis/before-install-$TRAVIS_OS_NAME.sh
 
 script:
-  - buckaroo install
-  - buck build //:neither
-  - buck build //:test#linux-x86_64
-  - buck run //:test#linux-x86_64
+  - ./buckaroo-client install
+  - buck build -c ui.superconsole=DISABLED :neither
+  - buck test -c ui.superconsole=DISABLED //...
